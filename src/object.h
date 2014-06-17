@@ -138,4 +138,7 @@ Animation* object_animation_get(Object* o);
 
 void object_components_init(Object* o);
 
+const char* object_name_get(const Object* o);
+Vec3 object_position_get(const Object* o);
+
 #endif
