@@ -505,13 +505,21 @@ _shader_instance_uniform_default_value_add(ShaderInstance* si, Uniform* uni)
   if (uni->type == UNIFORM_TEXTURE ) {
     //TODO another default texture
     TextureHandle* t = resource_texture_handle_new(s_rm, "image/ceil.png");
-    printf("shader instance uniform default value 00 \n");
+
+    if (!si->textures) {
+      si->textures = eina_hash_string_superfast_new(NULL);
+    }
+
     eina_hash_add(si->textures, uni->name, t);
   }
   else {
     UniformValue* uv = calloc(1, sizeof *uv);
     uv->type = uni->type;
-    printf("shader instance uniform default value 01 \n");
+
+    if (!si->uniforms) {
+      si->uniforms = eina_hash_string_superfast_new(NULL);
+    }
+
     eina_hash_add(si->uniforms, uni->name, uv);
   }
 }
