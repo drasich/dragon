@@ -899,3 +899,16 @@ object_components_init(Object* o)
   }
 
 }
+
+const char*
+object_name_get(const Object* o)
+{
+  return o->name;
+}
+
+Vec3
+object_position_get(const Object* o)
+{
+  return o->position;
+}
+
