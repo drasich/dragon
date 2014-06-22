@@ -33,7 +33,8 @@ property_set_vec3()
 
   ps = property_set_new();
   PROPERTY_SET_TYPE(ps, Vec3);
-  ps->hint = HORIZONTAL;
+  //ps->hint = HORIZONTAL;
+  ps->hint = VERTICAL;
   ps->name = "vec3";
 
   PROPERTY_BASIC_ADD(ps, Vec3, x, EET_T_DOUBLE);
@@ -51,7 +52,8 @@ property_set_vec4()
 
   ps = property_set_new();
   PROPERTY_SET_TYPE(ps, Vec4);
-  ps->hint = HORIZONTAL;
+  //ps->hint = HORIZONTAL;
+  ps->hint = VERTICAL;
   ps->name = "vec4";
 
   PROPERTY_BASIC_ADD(ps, Vec4, x, EET_T_DOUBLE);
@@ -70,7 +72,8 @@ property_set_quat()
 
   ps = property_set_new();
   PROPERTY_SET_TYPE(ps, Quat);
-  ps->hint = HORIZONTAL;
+  //ps->hint = HORIZONTAL;
+  ps->hint = VERTICAL;
   ps->name = "quat";
   ps->type = PROPERTY_QUAT;
 
