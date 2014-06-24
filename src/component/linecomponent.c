@@ -118,10 +118,12 @@ line_component_draw(LineComponent* lc, Matrix4 world, const Matrix4 projection)
     lc->shader_instance = shader_instance_create(s);
   }
 
+  /*
   //TODO this is needed for draggers
   if (lc->shader_instance && lc->shader_instance->uniforms) {
     eina_hash_foreach(lc->shader_instance->uniforms, uniform_send, s);
   }
+  */
 
   if (!m->is_init) {
     mesh_init(m);

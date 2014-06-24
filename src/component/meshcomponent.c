@@ -45,45 +45,6 @@ _mesh_component_properties()
   return ps;
 }
 
-
-/*
-static Eina_Bool uniform_send(
-      const Eina_Hash *hash,
-      const void *key,
-      void *data,
-      void *fdata)
-{
-  Shader* s = fdata;
-
-  Uniform* uni = shader_uniform_get(s, key);
-  if (!uni) {
-    printf("%s : cannot find uniform '%s' \n", __FUNCTION__, key);
-    return EINA_FALSE;
-  }
-  GLint uniloc =  uni->location;
-  if (uniloc < 0) {
-    printf("no such uniform '%s' \n", key);
-    return EINA_FALSE;
-  }
-
-  UniformValue* uv = data;
-  if (uni->type == UNIFORM_VEC4) {
-    Vec4* v = &uv->value.vec4;
-    glUniform4f(uniloc, v->x,v->y,v->z,v->w);
-  }
-  else if (uni->type == UNIFORM_INT) {
-    glUniform1i(uniloc, uv->value.i);
-  }
-  else {
-    printf("mesh component uniform send not yet : %d \n", uni->type);
-  }
-
-
-  return EINA_TRUE;
-}
-*/
-
-
 static void 
 _mesh_component_draw(Component* c, Matrix4 world, const Matrix4 projection)
 {
@@ -123,10 +84,14 @@ _mesh_component_draw(Component* c, Matrix4 world, const Matrix4 projection)
     eina_hash_add(mc->shader_instance_hash, s->name, mc->shader_instance);
   }
 
-  //TODO this is needed for draggers
+  //TODO this is needed for draggers, 
+  // 14/06/24 ERR I dont think we need this,
+  //if nothing wrong , remove this
+  /*
   if (mc->shader_instance && mc->shader_instance->uniforms) {
     eina_hash_foreach(mc->shader_instance->uniforms, uniform_send, s);
   }
+  */
 
   if (!m->is_init) {
     mesh_init(m);

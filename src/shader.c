@@ -765,6 +765,7 @@ void shader_instance_init(ShaderInstance* si)
   eina_hash_foreach(si->textures, _texture_init, NULL);
 }
 
+/*
 Eina_Bool
 uniform_send(
       const Eina_Hash *hash,
@@ -806,6 +807,31 @@ uniform_send(
 
   return EINA_TRUE;
 }
+*/
+
+struct _UniformCheck
+{
+  Shader* s;
+  Eina_List* keys_to_remove;
+};
+
+static Eina_Bool
+_uniform_check(
+      const Eina_Hash *hash,
+      const void *key,
+      void *data,
+      void *fdata)
+{
+  struct _UniformCheck *uc = fdata;
+  Shader* s = uc->s;
+
+  Uniform* uni = shader_uniform_get(s, key);
+  if (!uni) {
+    uc->keys_to_remove = eina_list_append(uc->keys_to_remove, key);
+  }
+  return EINA_TRUE;
+}
+
 
 void
 shader_instance_update(ShaderInstance* si, Shader* s)
@@ -821,6 +847,33 @@ shader_instance_update(ShaderInstance* si, Shader* s)
       if (!uv) _shader_instance_uniform_default_value_add(si, uni);
     }
   }
+
+  struct _UniformCheck *uc = calloc(1, sizeof *uc);
+  uc->s = s;
+  Eina_List* l;
+  void* key;
+
+  if (si->textures) {
+    eina_hash_foreach(si->textures, _uniform_check, uc);
+
+    EINA_LIST_FOREACH(uc->keys_to_remove, l, key){
+      eina_hash_del(si->textures, key, NULL);
+    }
+
+    eina_list_free(uc->keys_to_remove);
+  }
+
+  if (si->uniforms) {
+    eina_hash_foreach(si->uniforms, _uniform_check, uc);
+
+    EINA_LIST_FOREACH(uc->keys_to_remove, l, key){
+      eina_hash_del(si->uniforms, key, NULL);
+    }
+
+    eina_list_free(uc->keys_to_remove);
+  }
+
+  free(uc);
 }
 
 Shader*
