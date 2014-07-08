@@ -466,12 +466,10 @@ shader_matrices_set(Shader* s, Matrix4 mat, const Matrix4 projection)
   Matrix3 normal_mat;
   mat4_to_mat3(mat, normal_mat);
   mat3_inverse(normal_mat, normal_mat);
-  mat3_transpose(normal_mat, normal_mat);
   mat3_to_gl(normal_mat, matrix_normal);
 
   Matrix4 tm;
   mat4_multiply(projection, mat, tm);
-  mat4_transpose(tm, tm);
   mat4_to_gl(tm, matrix);
 
   GLint uni_matrix = shader_uniform_location_get(s, "matrix");

@@ -5,17 +5,17 @@
 #undef near
 #undef far
 
-// matrices are row major in this code:
-// 0 1 2 3
-// 4 5 6 7
-// 8 9 10 11
-// 12 13 14 15
-// while opengL is column major:
+// 1) matrices are row major in this code:
 // 0 4 8 12
 // 1 5 9 13
 // 2 6 10 14
 // 3 7 11 15
-// so we need to transpose before sending
+// Example: translation matrix example vec3(50,10, 30)
+// 1 0 0 50
+// 0 1 0 10
+// 0 0 1 30
+// 0 0 0 1
+// 2) we use post multiplication
 
 typedef double Matrix4[16];
 typedef double Matrix3[9];
@@ -86,6 +86,12 @@ Quat mat4_get_quat(Matrix4 m);
 void mat4_set_scale(Matrix4 m, const Vec3 v);
 
 void mat4_copy(const Matrix4 in, Matrix4 out);
+
+void mat4_rotation_axis_angle_deg(Matrix4 out, Vec3 axis, double angle);
+
+void mat4_print(const Matrix4 m);
+
+
 
 #endif
 
