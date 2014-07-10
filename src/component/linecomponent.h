@@ -17,7 +17,7 @@ struct _LineComponent
 
 LineComponent* line_component_create();
 ComponentDesc* component_line();
-void line_component_draw(LineComponent* lc, Matrix4 world, const Matrix4 projection);
+void line_component_draw(LineComponent* lc, const Matrix4 world, const Matrix4 projection);
 void line_clear(LineComponent* l);
 
 

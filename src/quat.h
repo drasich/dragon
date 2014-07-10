@@ -5,7 +5,9 @@
 
 typedef Vec4 Quat;
 
+Quat quat(double x, double y, double z, double w);
 Quat quat_identity();
+// Takes Radians !!!!!!
 Quat quat_angle_axis(double angle, Vec3 axis);
 void quat_set_identity(Quat* q);
 Quat quat_yaw_pitch_roll_rad(double yaw, double pitch, double roll);
@@ -38,5 +40,7 @@ Vec3 quat_to_euler(Quat q);
 Vec3 quat_to_euler_deg(Quat q);
 
 bool quat_equal(Quat q1, Quat q2);
+
+Quat quat_normalized(Quat q);
 
 #endif

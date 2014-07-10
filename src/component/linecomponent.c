@@ -71,7 +71,7 @@ static Eina_Bool uniform_send(
 
 
 static void 
-_line_component_draw(Component* c, Matrix4 world, const Matrix4 projection)
+_line_component_draw(Component* c, const Matrix4 world, const Matrix4 projection)
 {
   LineComponent* lc = c->data;
   if (!lc) {
@@ -83,7 +83,7 @@ _line_component_draw(Component* c, Matrix4 world, const Matrix4 projection)
 }
 
 void
-line_component_draw(LineComponent* lc, Matrix4 world, const Matrix4 projection)
+line_component_draw(LineComponent* lc, const Matrix4 world, const Matrix4 projection)
 {
   if (!lc) {
     printf("no line component data\n");

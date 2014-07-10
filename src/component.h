@@ -17,7 +17,7 @@ struct _ComponentDesc {
   Property* (*properties)();
   void (*init)(Component* c); 
   void (*update)(Component* c, double dt); 
-  void (*draw)(Component* c, Matrix4 world, const Matrix4 projection); 
+  void (*draw)(Component* c, const Matrix4 world, const Matrix4 projection); 
   void (*on_property_changed)(Component* c); 
   void (*del)(Component* c); 
 

@@ -46,7 +46,7 @@ _mesh_component_properties()
 }
 
 static void 
-_mesh_component_draw(Component* c, Matrix4 world, const Matrix4 projection)
+_mesh_component_draw(Component* c, const Matrix4 world, const Matrix4 projection)
 {
   MeshComponent* mc = c->data;
   if (!mc) {

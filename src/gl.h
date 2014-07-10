@@ -44,6 +44,7 @@ Evas_GL_API* gl;
 #define glUniform2f gl->glUniform2f
 #define glDeleteBuffers gl->glDeleteBuffers
 #define glEnable gl->glEnable
+#define glDisable gl->glDisable
 #define glDepthFunc gl->glDepthFunc
 #define glClearDepthf gl->glClearDepthf
 #define glClearStencil gl->glClearStencil
@@ -62,6 +63,7 @@ Evas_GL_API* gl;
 #define glBindFramebuffer gl->glBindFramebuffer
 #define glFramebufferTexture2D gl->glFramebufferTexture2D
 #define glCheckFramebufferStatus gl->glCheckFramebufferStatus
+#define glReadPixels gl->glReadPixels
 
 #else
 

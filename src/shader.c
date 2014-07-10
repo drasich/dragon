@@ -458,7 +458,7 @@ shader_uniform_get(Shader* s, const char* name)
 
 
 void
-shader_matrices_set(Shader* s, Matrix4 mat, const Matrix4 projection)
+shader_matrices_set(Shader* s, const Matrix4 mat, const Matrix4 projection)
 {
   Matrix4GL matrix;
   Matrix3GL matrix_normal;

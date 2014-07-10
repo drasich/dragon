@@ -1,11 +1,25 @@
 #include "quat.h"
 #include "stdio.h"
 #include "matrix.h"
+#include <math.h>
+
+Quat
+quat(double x, double y, double z, double w)
+{ 
+  Quat q = { .x = x, .y = y, .z = z, .w = w };
+  return q;
+}
 
 double
 quat_length2(Quat v)
 {
   return v.x*v.x + v.y*v.y + v.z*v.z + v.w*v.w;
+}
+
+double
+quat_length(Quat v)
+{
+  return sqrt(quat_length2(v));
 }
 
 const double epsilon = 0.0000001;
@@ -194,10 +208,10 @@ quat_to_axis_angle(Quat q)
 }
 
 Quat
-quat_between_vec(Vec3 from, Vec3 to)
+quat_between_vec2(Vec3 from, Vec3 to)
 {
   //TODO looks like from and to are switched...
-  printf("TODO --warning-- check this function 'quat_between_vec', looks like from and to are switched\n");
+  //printf("TODO --warning-- check this function 'quat_between_vec', looks like from and to are switched\n");
   Vec3 sourceVector = from;
   Vec3 targetVector = to;
 
@@ -277,6 +291,83 @@ quat_between_vec(Vec3 from, Vec3 to)
 
 }
 
+Quat
+quat_between_vec3(Vec3 from, Vec3 to)
+{
+  from = vec3_normalized(from);
+  to = vec3_normalized(to);
+
+  double cos_angle = vec3_dot(from,to);
+  Vec3 rot_axis;
+
+  printf("cos angle : %f\n", cos_angle);
+
+   if (cos_angle < -1 + 0.001f){
+     rot_axis = vec3_cross(vec3(0.0f, 0.0f, 1.0f), from);
+
+     if (vec3_length(rot_axis) < 0.01 ) 
+     rot_axis = vec3_cross(vec3(1.0f, 0.0f, 0.0f), from);
+
+     rot_axis = vec3_normalized(rot_axis);
+    printf("quat bet vec PI rot : %f ;; %f, %f, %f\n", rot_axis.x, rot_axis.y, rot_axis.z);
+     return quat_angle_axis(M_PI, rot_axis);
+    }
+
+   rot_axis = vec3_cross(from, to);
+
+   double s = sqrt((1.0f + cos_angle) * 2.0f);
+   double invs = 1.0f / s;
+
+  printf("quat bet vec s, ROTAXIS : %f ;; %f, %f, %f\n", s, rot_axis.x, rot_axis.y, rot_axis.z);
+
+   return quat(
+        rot_axis.x * invs,
+        rot_axis.y * invs,
+        rot_axis.z * invs,
+        s * 0.5f);
+}
+
+Quat
+quat_between_vec(Vec3 from, Vec3 to)
+{
+  from = vec3_normalized(from);
+  to = vec3_normalized(to);
+
+  Quat q;
+  Vec3 a = vec3_cross(from, to);
+  q.x = a.x;
+  q.y = a.y;
+  q.z = a.z;
+  q.w = sqrt(vec3_length2(from) * vec3_length2(to)) + vec3_dot(from, to);
+  q = quat_normalized(q);
+  return q;
+
+}
+
+Quat
+quat_lookat(Vec3 from, Vec3 at, Vec3 up)
+{
+  Vec3 forward = vec3_sub(at, from);
+  Vec3 up_wanted = vec3(0,1,0.00001); 
+  Quat rot1 = quat_between_vec3(vec3(0,0,-1), forward);
+
+  //printf("rot1 quat : %f, %f, %f, %f\n", rot1.x,rot1.y,rot1.z,rot1.w);
+  //Vec3 a = quat_to_euler_deg(rot1);
+  //printf("rot1 angle : %f, %f, %f\n", a.x,a.y,a.z);
+  return rot1;
+  
+  Vec3 right = vec3_cross(forward, up_wanted);
+  up_wanted = vec3_cross(right, forward);
+  //Vec3 up_new = rot1 * glm::vec3(0.0f, 1.0f, 0.0f);
+  Vec3 up_new = quat_rotate_vec3(rot1, vec3(0.0f, 1.0f, 0.0f));
+  Quat rot2 = quat_between_vec(up_new, up_wanted);
+  //Quat q = rot2 * rot1;
+  Quat q = quat_mul(rot2, rot1);
+
+  return q;
+}
+
+
 Vec3 
 quat_rotate_around_angles(Vec3 pivot, Vec3 mypoint, float yaw, float pitch)
 {
@@ -305,7 +396,7 @@ quat_rotate_around_angles(Vec3 pivot, Vec3 mypoint, float yaw, float pitch)
 }
 
 Quat 
-quat_lookat(Vec3 from, Vec3 to, Vec3 up)
+quat_lookat2(Vec3 from, Vec3 to, Vec3 up)
 {
   printf("TODO --warning-- check this function 'quat_lookat', looks wrong\n");
   Matrix4 la;
@@ -385,4 +476,10 @@ bool
 quat_equal(Quat q1, Quat q2)
 {
   return q1.x == q2.x && q1.y == q2.y && q1.z == q2.z && q1.w == q2.w;
+}
+
+Quat
+quat_normalized(Quat q)
+{
+  return quat_mul_scalar(q, 1/quat_length(q));
 }
