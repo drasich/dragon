@@ -22,36 +22,35 @@ mat4_to_mat3(const Matrix4 in, Matrix3 out)
 void
 mat3_inverse(const Matrix3 in, Matrix3 out)
 {
+  //TODO check
   double determinant, inv_determinant;
   double tmp[9];
 
-  tmp[0] = in[4] * in[8] - in[5] * in[7];
-  tmp[1] = in[2] * in[7] - in[1] * in[8];
-  tmp[2] = in[1] * in[5] - in[2] * in[4];
-  tmp[3] = in[5] * in[6] - in[3] * in[8];
-  tmp[4] = in[0] * in[8] - in[2] * in[6];
-  tmp[5] = in[2] * in[3] - in[0] * in[5];
-  tmp[6] = in[3] * in[7] - in[4] * in[6];
-  tmp[7] = in[1] * in[6] - in[0] * in[7];
-  tmp[8] = in[0] * in[4] - in[1] * in[3];
+  tmp[0] = in[4]*in[8] - in[7]*in[5];
+  tmp[3] = in[6]*in[5] - in[3]*in[8];
+  tmp[6] = in[3]*in[7] - in[6]*in[4];
+  tmp[1] = in[7]*in[2] - in[1]*in[8];
+  tmp[4] = in[0]*in[8] - in[6]*in[2];
+  tmp[7] = in[6]*in[1] - in[0]*in[7];
+  tmp[2] = in[1]*in[5] - in[4]*in[2];
+  tmp[5] = in[3]*in[2] - in[0]*in[5];
+  tmp[8] = in[0]*in[4] - in[3]*in[1];
 
-  determinant = in[0] * tmp[0] + in[1] * tmp[3] + in[2] * tmp[6];
+  determinant =
+   in[0]*tmp[0] +
+   in[3]*tmp[1] +
+   in[6]*tmp[2];
 
-  if (fabs(determinant) <= DBL_MIN) {
+  if ( fabs(determinant) <= DBL_MIN) {
     mat3_set_identity(out);
     return;
-  }
+   }
 
   inv_determinant = 1.0f / determinant;
-  out[0] = inv_determinant * tmp[0];
-  out[1] = inv_determinant * tmp[1];
-  out[2] = inv_determinant * tmp[2];
-  out[3] = inv_determinant * tmp[3];
-  out[4] = inv_determinant * tmp[4];
-  out[5] = inv_determinant * tmp[5];
-  out[6] = inv_determinant * tmp[6];
-  out[7] = inv_determinant * tmp[7];
-  out[8] = inv_determinant * tmp[8];
+  int i;
+  for (i = 0; i < 8; i++){
+    out[i] = inv_determinant * tmp[i];
+   }
 }
 
 void
@@ -102,15 +101,15 @@ mat4_set_frustum(
       double near,
       double far)
 {
-  m[1] = m[3] = m[4] = m[7] = m[8] = m[9] = m[12] = m[13] = 0;
+  m[1] = m[3] = m[4] = m[7] = m[2] = m[6] = m[12] = m[13] = 0;
 
   m[0] = 2 * near / (right - left);
-  m[2] = (right + left) / (right - left);
+  m[8] = (right + left) / (right - left);
   m[5] = 2 * near / (top - bottom);
-  m[6] = (top + bottom) / (top - bottom);
+  m[9] = (top + bottom) / (top - bottom);
   m[10] = -(far + near) / (far - near);
-  m[11] = -(2 * far * near) / (far - near);
-  m[14] = -1;
+  m[14] = -(2 * far * near) / (far - near);
+  m[11] = -1;
   m[15] = 0;
 }
 
@@ -141,10 +140,10 @@ mat4_set_orthographic(
   m[0] =  1/(double) hw;
   m[5] =  1/(double) hh;
   m[10] = -2 / (far - near);
-  m[11] = - (far + near) / (far - near);
+  //m[11] = - (far + near) / (far - near);
+  m[14] = - (far + near) / (far - near);
   m[15] = 1;
 }
-
 
 void
 mat4_multiply(const Matrix4 m, const Matrix4 n, Matrix4 out)
@@ -152,22 +151,26 @@ mat4_multiply(const Matrix4 m, const Matrix4 n, Matrix4 out)
   // we use a tmp in case out is the same as m or n.
   // we could make an assert to make sure they are different pointers...
   double tmp[16];
-  tmp[0] = m[0]*n[0] + m[1]*n[4] + m[2]*n[8] + m[3]*n[12];
-  tmp[1] = m[0]*n[1] + m[1]*n[5] + m[2]*n[9] + m[3]*n[13];
-  tmp[2] = m[0]*n[2] + m[1]*n[6] + m[2]*n[10] + m[3]*n[14];
-  tmp[3] = m[0]*n[3] + m[1]*n[7] + m[2]*n[11] + m[3]*n[15];
-  tmp[4] = m[4]*n[0] + m[5]*n[4] + m[6]*n[8] + m[7]*n[12];
-  tmp[5] = m[4]*n[1] + m[5]*n[5] + m[6]*n[9] + m[7]*n[13];
-  tmp[6] = m[4]*n[2] + m[5]*n[6] + m[6]*n[10] + m[7]*n[14];
-  tmp[7] = m[4]*n[3] + m[5]*n[7] + m[6]*n[11] + m[7]*n[15];
-  tmp[8] = m[8]*n[0] + m[9]*n[4] + m[10]*n[8] + m[11]*n[12];
-  tmp[9] = m[8]*n[1] + m[9]*n[5] + m[10]*n[9] + m[11]*n[13];
-  tmp[10] = m[8]*n[2] + m[9]*n[6] + m[10]*n[10] + m[11]*n[14];
-  tmp[11] = m[8]*n[3] + m[9]*n[7] + m[10]*n[11] + m[11]*n[15];
-  tmp[12] = m[12]*n[0] + m[13]*n[4] + m[14]*n[8] + m[15]*n[12];
-  tmp[13] = m[12]*n[1] + m[13]*n[5] + m[14]*n[9] + m[15]*n[13];
-  tmp[14] = m[12]*n[2] + m[13]*n[6] + m[14]*n[10] + m[15]*n[14];
-  tmp[15] = m[12]*n[3] + m[13]*n[7] + m[14]*n[11] + m[15]*n[15];
+
+  tmp[0]  = m[0] * n[0]  + m[4] * n[1]  + m[8] * n[2]  + m[12] * n[3];
+  tmp[4]  = m[0] * n[4]  + m[4] * n[5]  + m[8] * n[6]  + m[12] * n[7];
+  tmp[8]  = m[0] * n[8]  + m[4] * n[9]  + m[8] * n[10] + m[12] * n[11];
+  tmp[12] = m[0] * n[12] + m[4] * n[13] + m[8] * n[14] + m[12] * n[15];
+
+  tmp[1]  = m[1] * n[0]  + m[5] * n[1]  + m[9] * n[2]  + m[13] * n[3];
+  tmp[5]  = m[1] * n[4]  + m[5] * n[5]  + m[9] * n[6]  + m[13] * n[7];
+  tmp[9]  = m[1] * n[8]  + m[5] * n[9]  + m[9] * n[10] + m[13] * n[11];
+  tmp[13] = m[1] * n[12] + m[5] * n[13] + m[9] * n[14] + m[13] * n[15];
+
+  tmp[2]  = m[2] * n[0]  + m[6] * n[1]  + m[10] * n[2]  + m[14] * n[3];
+  tmp[6]  = m[2] * n[4]  + m[6] * n[5]  + m[10] * n[6]  + m[14] * n[7];
+  tmp[10] = m[2] * n[8]  + m[6] * n[9]  + m[10] * n[10] + m[14] * n[11];
+  tmp[14] = m[2] * n[12] + m[6] * n[13] + m[10] * n[14] + m[14] * n[15];
+
+  tmp[3]  = m[3] * n[0]  + m[7] * n[1]  + m[11] * n[2]  + m[15] * n[3];
+  tmp[7]  = m[3] * n[4]  + m[7] * n[5]  + m[11] * n[6]  + m[15] * n[7];
+  tmp[11] = m[3] * n[8]  + m[7] * n[9]  + m[11] * n[10] + m[15] * n[11];
+  tmp[15] = m[3] * n[12] + m[7] * n[13] + m[11] * n[14] + m[15] * n[15];
 
   int i;
   for (i = 0; i < 16; ++i) {
@@ -234,13 +237,13 @@ void
 mat4_set_translation(Matrix4 m, Vec3 t)
 {
   m[0] = m[5] = m[10] = m[15] = 1;
-  m[3] = t.x;
-  m[7] = t.y;
-  m[11] = t.z;
+  m[12] = t.x;
+  m[13] = t.y;
+  m[14] = t.z;
 
   m[1] = m[2] = m[4] = 0;
   m[6] = m[8] = m[9] = 0;
-  m[12] = m[13] = m[14] = 0;
+  m[3] = m[7] = m[11] = 0;
 }
 
 void
@@ -305,140 +308,137 @@ mat4_set_rotation_quat(Matrix4 m, Quat q)
   m[10] = 1 - (xx + yy);
 }
 
-static double
-_cofactor(
-      double m0,
-      double m1,
-      double m2,
-      double m3,
-      double m4,
-      double m5,
-      double m6,
-      double m7,
-      double m8
+void mat4_set(Matrix4 out,
+      double d00,
+      double d01,
+      double d02,
+      double d03,
+      double d10,
+      double d11,
+      double d12,
+      double d13,
+      double d20,
+      double d21,
+      double d22,
+      double d23,
+      double d30,
+      double d31,
+      double d32,
+      double d33
       )
 {
-  return 
-   m0 * (m4 * m8 - m5 * m7) -
-   m1 * (m3 * m8 - m5 * m6) +
-   m2 * (m3 * m7 - m4 * m6);
-}
-static void
-_mat4_inverse_affine(const Matrix4 m, Matrix4 out)
-{
-  // R^-1
-  //Matrix3 r = {m[0],m[1],m[2], m[4],m[5],m[6], m[8],m[9],m[10]};
-  Matrix3 r;
-  mat4_to_mat3(m,r);
-  mat3_inverse(r,r);
+  out[0] = d00;
+  out[1] = d10;
+  out[2] = d20;
+  out[3] = d30;
 
-  out[0] = r[0];  out[1] = r[1];  out[2] = r[2];
-  out[4] = r[3];  out[5] = r[4];  out[6] = r[5];
-  out[8] = r[6];  out[9] = r[7];  out[10]= r[8];
+  out[4] = d01; 
+  out[5] = d11;
+  out[6] = d21;
+  out[7] = d31;
 
-  // -R^-1 * T
-  double x = m[3];
-  double y = m[7];
-  double z = m[11];
-  out[3]  = -(r[0] * x + r[1] * y + r[2] * z);
-  out[7]  = -(r[3] * x + r[4] * y + r[5] * z);
-  out[11] = -(r[6] * x + r[7] * y + r[8] * z);
+  out[8] = d02;
+  out[9] = d12;
+  out[10]= d22;
+  out[11]= d32;
 
-  // last row should be unchanged (0,0,0,1)
-  out[12] = out[13] = out[14] = 0.0f;
-  out[15] = 1.0f;
-}
-
-static void
-_mat4_inverse_general(const Matrix4 m, Matrix4 out)
-{
-  // get cofactors of minor matrices
-  double cofactor0 = _cofactor(m[5],m[6],m[7], m[9],m[10],m[11], m[13],m[14],m[15]);
-  double cofactor1 = _cofactor(m[4],m[6],m[7], m[8],m[10],m[11], m[12],m[14],m[15]);
-  double cofactor2 = _cofactor(m[4],m[5],m[7], m[8],m[9], m[11], m[12],m[13],m[15]);
-  double cofactor3 = _cofactor(m[4],m[5],m[6], m[8],m[9], m[10], m[12],m[13],m[14]);
-
-  // get determinant
-  double determinant = m[0] * cofactor0 - m[1] * cofactor1 + m[2] * cofactor2 - m[3] * cofactor3;
-  if(fabs(determinant) <= 0.00001f) {
-    mat4_set_identity(out);
-   }
-
-  // get rest of cofactors for adj(M)
-  double cofactor4 = _cofactor(m[1],m[2],m[3], m[9],m[10],m[11], m[13],m[14],m[15]);
-  double cofactor5 = _cofactor(m[0],m[2],m[3], m[8],m[10],m[11], m[12],m[14],m[15]);
-  double cofactor6 = _cofactor(m[0],m[1],m[3], m[8],m[9], m[11], m[12],m[13],m[15]);
-  double cofactor7 = _cofactor(m[0],m[1],m[2], m[8],m[9], m[10], m[12],m[13],m[14]);
-
-  double cofactor8 = _cofactor(m[1],m[2],m[3], m[5],m[6], m[7],  m[13],m[14],m[15]);
-  double cofactor9 = _cofactor(m[0],m[2],m[3], m[4],m[6], m[7],  m[12],m[14],m[15]);
-  double cofactor10= _cofactor(m[0],m[1],m[3], m[4],m[5], m[7],  m[12],m[13],m[15]);
-  double cofactor11= _cofactor(m[0],m[1],m[2], m[4],m[5], m[6],  m[12],m[13],m[14]);
-
-  double cofactor12= _cofactor(m[1],m[2],m[3], m[5],m[6], m[7],  m[9], m[10],m[11]);
-  double cofactor13= _cofactor(m[0],m[2],m[3], m[4],m[6], m[7],  m[8], m[10],m[11]);
-  double cofactor14= _cofactor(m[0],m[1],m[3], m[4],m[5], m[7],  m[8], m[9], m[11]);
-  double cofactor15= _cofactor(m[0],m[1],m[2], m[4],m[5], m[6],  m[8], m[9], m[10]);
-
-  // build inverse matrix = adj(M) / det(M)
-  // adjugate of M is the transpose of the cofactor matrix of M
-  double invDeterminant = 1.0f / determinant;
-  out[0] =  invDeterminant * cofactor0;
-  out[1] = -invDeterminant * cofactor4;
-  out[2] =  invDeterminant * cofactor8;
-  out[3] = -invDeterminant * cofactor12;
-
-  out[4] = -invDeterminant * cofactor1;
-  out[5] =  invDeterminant * cofactor5;
-  out[6] = -invDeterminant * cofactor9;
-  out[7] =  invDeterminant * cofactor13;
-
-  out[8] =  invDeterminant * cofactor2;
-  out[9] = -invDeterminant * cofactor6;
-  out[10]=  invDeterminant * cofactor10;
-  out[11]= -invDeterminant * cofactor14;
-
-  out[12]= -invDeterminant * cofactor3;
-  out[13]=  invDeterminant * cofactor7;
-  out[14]= -invDeterminant * cofactor11;
-  out[15]=  invDeterminant * cofactor15;
+  out[12]= d03; 
+  out[13]= d13;
+  out[14]= d23;
+  out[15]= d33;
 }
 
 void
 mat4_inverse(const Matrix4 m, Matrix4 out)
 {
-  if(m[12] == 0 && m[13] == 0 && m[14] == 0 && m[15] == 1)
-  _mat4_inverse_affine(m, out);
-  else
-  _mat4_inverse_general(m, out);
-}
+  //TODO optim
+  double m00 = m[0], m01 = m[4], m02 = m[8], m03 = m[12];
+  double m10 = m[1], m11 = m[5], m12 = m[9], m13 = m[13];
+  double m20 = m[2], m21 = m[6], m22 = m[10], m23 = m[14];
+  double m30 = m[3], m31 = m[7], m32 = m[11], m33 = m[15];
 
+  double v0 = m20 * m31 - m21 * m30;
+  double v1 = m20 * m32 - m22 * m30;
+  double v2 = m20 * m33 - m23 * m30;
+  double v3 = m21 * m32 - m22 * m31;
+  double v4 = m21 * m33 - m23 * m31;
+  double v5 = m22 * m33 - m23 * m32;
+
+  double t00 = + (v5 * m11 - v4 * m12 + v3 * m13);
+  double t10 = - (v5 * m10 - v2 * m12 + v1 * m13);
+  double t20 = + (v4 * m10 - v2 * m11 + v0 * m13);
+  double t30 = - (v3 * m10 - v1 * m11 + v0 * m12);
+
+  double invDet = 1 / (t00 * m00 + t10 * m01 + t20 * m02 + t30 * m03);
+
+  double d00 = t00 * invDet;
+  double d10 = t10 * invDet;
+  double d20 = t20 * invDet;
+  double d30 = t30 * invDet;
+
+  double d01 = - (v5 * m01 - v4 * m02 + v3 * m03) * invDet;
+  double d11 = + (v5 * m00 - v2 * m02 + v1 * m03) * invDet;
+  double d21 = - (v4 * m00 - v2 * m01 + v0 * m03) * invDet;
+  double d31 = + (v3 * m00 - v1 * m01 + v0 * m02) * invDet;
+
+  v0 = m10 * m31 - m11 * m30;
+  v1 = m10 * m32 - m12 * m30;
+  v2 = m10 * m33 - m13 * m30;
+  v3 = m11 * m32 - m12 * m31;
+  v4 = m11 * m33 - m13 * m31;
+  v5 = m12 * m33 - m13 * m32;
+
+  double d02 = + (v5 * m01 - v4 * m02 + v3 * m03) * invDet;
+  double d12 = - (v5 * m00 - v2 * m02 + v1 * m03) * invDet;
+  double d22 = + (v4 * m00 - v2 * m01 + v0 * m03) * invDet;
+  double d32 = - (v3 * m00 - v1 * m01 + v0 * m02) * invDet;
+
+  v0 = m21 * m10 - m20 * m11;
+  v1 = m22 * m10 - m20 * m12;
+  v2 = m23 * m10 - m20 * m13;
+  v3 = m22 * m11 - m21 * m12;
+  v4 = m23 * m11 - m21 * m13;
+  v5 = m23 * m12 - m22 * m13;
+
+  double d03 = - (v5 * m01 - v4 * m02 + v3 * m03) * invDet;
+  double d13 = + (v5 * m00 - v2 * m02 + v1 * m03) * invDet;
+  double d23 = - (v4 * m00 - v2 * m01 + v0 * m03) * invDet;
+  double d33 = + (v3 * m00 - v1 * m01 + v0 * m02) * invDet;
+
+  return mat4_set(out,
+        d00, d01, d02, d03,
+        d10, d11, d12, d13,
+        d20, d21, d22, d23,
+        d30, d31, d32, d33);
+}
 
 Vec3 
 mat4_mul(const Matrix4 m, Vec3 v)
 {
   return vec3(
-        m[0]*v.x + m[1]*v.y + m[2]*v.z,
-        m[4]*v.x + m[5]*v.y + m[6]*v.z,
-        m[8]*v.x + m[9]*v.y + m[10]*v.z
+        m[0]*v.x + m[4]*v.y + m[8]*v.z,
+        m[1]*v.x + m[5]*v.y + m[9]*v.z,
+        m[2]*v.x + m[6]*v.y + m[10]*v.z
         );
 }
 
 Vec4 
 mat4_vec4_mul(const Matrix4 m, Vec4 v)
 {
+  //TODO check
   return vec4(
-        m[0]*v.x + m[1]*v.y + m[2]*v.z + m[3]*v.w,
-        m[4]*v.x + m[5]*v.y + m[6]*v.z + m[7]*v.w,
-        m[8]*v.x + m[9]*v.y + m[10]*v.z + m[11]*v.w,
-        m[12]*v.x + m[13]*v.y + m[14]*v.z + m[15]*v.w
+        m[0]*v.x + m[4]*v.y + m[8]*v.z + m[12]*v.w,
+        m[1]*v.x + m[5]*v.y + m[9]*v.z + m[13]*v.w,
+        m[2]*v.x + m[6]*v.y + m[10]*v.z + m[14]*v.w,
+        m[3]*v.x + m[7]*v.y + m[11]*v.z + m[15]*v.w
         );
 }
 
 
 Vec3
-mat4_premul(const Matrix4 m, Vec3 v)
+mat4_premul_unused(const Matrix4 m, Vec3 v)
 {
+  //TODO and remove unused
   return vec3(
         v.x*m[0] + v.y*m[4] + v.z*m[8],
         v.x*m[1] + v.y*m[5] + v.z*m[9],
@@ -446,8 +446,9 @@ mat4_premul(const Matrix4 m, Vec3 v)
 }
 
 Vec4
-mat4_vec4_premul(const Matrix4 m, Vec4 v)
+mat4_vec4_premul_unused(const Matrix4 m, Vec4 v)
 {
+  //TODO and remove unused
   return vec4(
         v.x*m[0] + v.y*m[4] + v.z*m[8] + v.w*m[12],
         v.x*m[1] + v.y*m[5] + v.z*m[9] + v.w*m[13],
@@ -462,13 +463,17 @@ mat4_pos_ori(Vec3 position, Quat orientation, Matrix4 out)
 {
   Matrix4 mt, mr;
   mat4_set_translation(mt, position);
+  mat4_print(mt);
   mat4_set_rotation_quat(mr, orientation);
   mat4_multiply(mt, mr, out);
+  //mat4_multiply(mr, mt, out);
 }
 
 void 
 mat4_lookat(Matrix4 m, Vec3 position, Vec3 at, Vec3 up)
 {
+  //TODO use quat
+  //TODO chris
   Vec3 d = vec3_sub(at, position);
   d = vec3_normalized(d);
   Vec3 s = vec3_cross(d, up);
@@ -500,8 +505,9 @@ mat4_lookat(Matrix4 m, Vec3 position, Vec3 at, Vec3 up)
 }
 
 void 
-mat4_pre_translate(Matrix4 m, Vec3 v)
+mat4_pre_translate_unused(Matrix4 m, Vec3 v)
 {
+  //TODO and remove unused, or remove all
   double tmp = v.x;
   if (tmp != 0) {
     m[12] += tmp*m[0];
@@ -539,6 +545,7 @@ typedef struct
 void 
 mat4_decomp_affine(Matrix4 hm, _AffineParts* parts)
 {
+  //TODO check or remove
   Matrix4 Q, S, U;
   Quat p;
 
@@ -548,8 +555,9 @@ mat4_decomp_affine(Matrix4 hm, _AffineParts* parts)
 }
 
 void 
-mat4_decompose(Matrix4 m, Vec3* position, Quat* rotation, Vec3* scale)
+mat4_decompose_unused(Matrix4 m, Vec3* position, Quat* rotation, Vec3* scale)
 {
+  //TODO check or remove
   Matrix4 hm;
   mat4_transpose(m, hm);
 
@@ -561,6 +569,7 @@ mat4_decompose(Matrix4 m, Vec3* position, Quat* rotation, Vec3* scale)
 Quat
 mat4_get_quat_sav(Matrix4 m)
 {
+  //TODO check or remove
   Quat q;
 
   double s;
@@ -613,6 +622,7 @@ mat4_get_quat_sav(Matrix4 m)
 Quat
 mat4_get_quat(Matrix4 m)
 {
+  //TODO check or remove
   Quat q;
 
   double t = 1 + m[0] + m[5] + m[10];
@@ -671,3 +681,54 @@ mat4_copy(const Matrix4 in, Matrix4 out)
   for (i = 0; i < 16; ++i) out[i] = in[i];
 
 }
+
+static void
+_mat4_rotate_deg(Matrix4 m, double angle, double x, double y, double z)
+{
+  double DEG2RAD = M_PI/180;
+  double c = cosf(angle * DEG2RAD);
+  double s = sinf(angle * DEG2RAD);
+  double oneminuscos = 1 - c;
+
+  double xx = x * x;
+  double xy = x * y;
+  double xz = x * z;
+  double yy = y * y;
+  double yz = y * z;
+  double zz = z * z;
+
+  m[0] = xx * oneminuscos + c;
+  m[4] = xy * oneminuscos - z * s;
+  m[8] = xz * oneminuscos + y * s;
+  m[12] = 0;
+  m[1] = xy * oneminuscos + z * s;
+  m[5] = yy * oneminuscos + c;
+  m[9] = yz * oneminuscos - x * s;
+  m[13] = 0;
+  m[2] = xz * oneminuscos - y * s;
+  m[6] = yz * oneminuscos + x * s;
+  m[10]= zz * oneminuscos + c;
+  m[14]= 0;
+  m[3]= 0;
+  m[7]= 0;
+  m[11]= 0;
+  m[15]= 1;
+}
+
+void
+mat4_rotation_axis_angle_deg(Matrix4 out, Vec3 axis, double angle)
+{
+  _mat4_rotate_deg(out, angle, axis.x, axis.y, axis.z);
+}
+
+void
+mat4_print(const Matrix4 m)
+{
+  printf("matrix4 : \n");
+  int i;
+  for (i = 0; i < 4; ++i) {
+    printf("  %f %f %f %f\n", m[i], m[i+4], m[i+8], m[i+12]);
+  }
+}
+
+

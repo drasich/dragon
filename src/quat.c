@@ -64,11 +64,12 @@ Quat
 quat_mul(Quat ql, Quat qr)
 {
   Quat q = { 
-    .x = qr.w*ql.x + qr.x*ql.w + qr.y*ql.z - qr.z*ql.y,
-    .y = qr.w*ql.y - qr.x*ql.z + qr.y*ql.w + qr.z*ql.x,
-    .z = qr.w*ql.z + qr.x*ql.y - qr.y*ql.x + qr.z*ql.w,
-    .w = qr.w*ql.w - qr.x*ql.x - qr.y*ql.y - qr.z*ql.z
+    .x = ql.w*qr.x + ql.x*qr.w + ql.y*qr.z - ql.z*qr.y,
+    .y = ql.w*qr.y + ql.y*qr.w + ql.z*qr.x - ql.x*qr.z,
+    .z = ql.w*qr.z + ql.z*qr.w + ql.x*qr.y - ql.y*qr.x,
+    .w = ql.w*qr.w - ql.x*qr.x - ql.y*qr.y - ql.z*qr.z
   };
+
   return q;
 }
 
@@ -93,7 +94,7 @@ quat_rotate_vec3(Quat q, Vec3 v)
   Vec3 qvec = {.x = q.x, .y = q.y, .z = q.z} ;
   uv = vec3_cross(qvec, v);
   uuv = vec3_cross(qvec, uv);
-  uv = vec3_mul(uv, -2.0f*q.w);
+  uv = vec3_mul(uv, 2.0f*q.w);
   uuv = vec3_mul(uuv, 2.0f);
   return vec3_add(v, vec3_add(uv, uuv));
 }
@@ -398,7 +399,6 @@ quat_rotate_around_angles(Vec3 pivot, Vec3 mypoint, float yaw, float pitch)
 Quat 
 quat_lookat2(Vec3 from, Vec3 to, Vec3 up)
 {
-  printf("TODO --warning-- check this function 'quat_lookat', looks wrong\n");
   Matrix4 la;
   mat4_lookat(la, from, to, up);
   return mat4_get_quat(la);
