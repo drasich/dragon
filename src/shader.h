@@ -48,6 +48,22 @@ struct _Uniform{
   bool visible;
 };
 
+typedef struct _UniformValue UniformValue;
+struct _UniformValue
+{
+  union {
+    int i;
+    float f;
+    Vec2 vec2;
+    Vec3 vec3;
+    Vec4 vec4;
+    Matrix3GL mat3;
+    Matrix4GL mat4;
+  } value;
+
+  UniformType type;
+};
+
 typedef enum _ShaderState ShaderState;
 enum _ShaderState {
   CREATED,
@@ -120,28 +136,13 @@ GLint shader_uniform_location_get(Shader* s, const char* name);
 void shader_attribute_add(Shader* s, const char* name, GLint size, GLenum type);
 
 ShaderInstance* shader_instance_create(Shader* s);
-void shader_instance_uniform_data_set(ShaderInstance* si, const char* name, void* data);
-void* shader_instance_uniform_data_get(ShaderInstance* si, const char* name);
+void shader_instance_uniform_data_set(ShaderInstance* si, const char* name, UniformValue* data);
+UniformValue* shader_instance_uniform_data_get(ShaderInstance* si, const char* name);
 void shader_instance_texture_data_set(ShaderInstance* si, const char* name, void* data);
 void* shader_instance_texture_data_get(ShaderInstance* si, const char* name);
 
 Property* property_set_shader_instance();
 
-typedef struct _UniformValue UniformValue;
-struct _UniformValue
-{
-  union {
-    int i;
-    float f;
-    Vec2 vec2;
-    Vec3 vec3;
-    Vec4 vec4;
-    Matrix3GL mat3;
-    Matrix4GL mat4;
-  } value;
-
-  UniformType type;
-};
 Property* property_set_uniform();
 void shader_instance_print(ShaderInstance* si);
 void shader_instance_init(ShaderInstance* si);
