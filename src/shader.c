@@ -538,7 +538,7 @@ shader_instance_create(Shader* s)
 }
 
 void
-shader_instance_uniform_data_set(ShaderInstance* si, const char* name, UniformValue* data)
+shader_instance_uniform_data_set(ShaderInstance* si, const char* name, const UniformValue* data)
 {
   void* old = eina_hash_set(si->uniforms, name, data);
   //if (!old) printf("--warning, %s: there was no such key '%s' \n", __FUNCTION__, name);
@@ -551,7 +551,7 @@ shader_instance_uniform_data_get(ShaderInstance* si, const char* name)
 }
 
 void
-shader_instance_texture_data_set(ShaderInstance* si, const char* name, void* data)
+shader_instance_texture_data_set(ShaderInstance* si, const char* name, const TextureHandle* data)
 {
   void* old = eina_hash_set(si->textures, name, data);
   //if (!old) printf("--warning, %s: there was no such key '%s' \n", __FUNCTION__, name);

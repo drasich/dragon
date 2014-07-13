@@ -4,6 +4,7 @@
 #include "stdbool.h"
 #include "matrix.h"
 #include "property.h"
+#include "resource_handle.h"
 
 typedef struct _Uniform Uniform;
 typedef struct _Attribute Attribute;
@@ -136,9 +137,9 @@ GLint shader_uniform_location_get(Shader* s, const char* name);
 void shader_attribute_add(Shader* s, const char* name, GLint size, GLenum type);
 
 ShaderInstance* shader_instance_create(Shader* s);
-void shader_instance_uniform_data_set(ShaderInstance* si, const char* name, UniformValue* data);
+void shader_instance_uniform_data_set(ShaderInstance* si, const char* name, const UniformValue* data);
 UniformValue* shader_instance_uniform_data_get(ShaderInstance* si, const char* name);
-void shader_instance_texture_data_set(ShaderInstance* si, const char* name, void* data);
+void shader_instance_texture_data_set(ShaderInstance* si, const char* name, const TextureHandle* data);
 void* shader_instance_texture_data_get(ShaderInstance* si, const char* name);
 
 Property* property_set_shader_instance();
