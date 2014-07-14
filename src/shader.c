@@ -554,7 +554,7 @@ shader_instance_create(Shader* s)
 }
 
 void
-shader_instance_uniform_data_set(ShaderInstance* si, const char* name, void* data)
+shader_instance_uniform_data_set(ShaderInstance* si, const char* name, const UniformValue* data)
 {
   if (si->uniforms) {
     void* old = eina_hash_set(si->uniforms, name, data);
@@ -564,14 +564,14 @@ shader_instance_uniform_data_set(ShaderInstance* si, const char* name, void* dat
    }
 }
 
-void*
+UniformValue*
 shader_instance_uniform_data_get(ShaderInstance* si, const char* name)
 {
   return eina_hash_find(si->uniforms, name);
 }
 
 void
-shader_instance_texture_data_set(ShaderInstance* si, const char* name, void* data)
+shader_instance_texture_data_set(ShaderInstance* si, const char* name, const TextureHandle* data)
 {
   if (si->textures)
    {
