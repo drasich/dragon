@@ -116,6 +116,7 @@ void shader_uniform_add(Shader* s, const char* name, bool visible);
 void shader_uniform_type_add(Shader* s, const char* name, UniformType type, bool visible);
 Uniform* shader_uniform_get(Shader* s, const char* name);
 GLint shader_uniform_location_get(Shader* s, const char* name);
+bool shader_uniform_has(Shader* s, const char* name);
 
 void shader_attribute_add(Shader* s, const char* name, GLint size, GLenum type);
 

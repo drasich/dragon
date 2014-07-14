@@ -30,6 +30,7 @@ static void
 _shader_attribute_location_init(Shader* s, Attribute* att)
 {
   GLint att_tmp = glGetAttribLocation(s->program, att->name);
+  att->location = att_tmp;
   if (att_tmp == -1) {
     EINA_LOG_DOM_ERR(log_shader_dom, "Shader %s, Error in getting attribute '%s' at line %d", s->name, att->name, __LINE__);
   }
@@ -42,6 +43,7 @@ static void
 _shader_uniform_location_init(Shader* s, Uniform* uni)
 {
   GLint uni_tmp = glGetUniformLocation(s->program, uni->name);
+  uni->location = uni_tmp;
   if (uni_tmp == -1) {
     EINA_LOG_DOM_ERR(log_shader_dom, "Error in getting uniform '%s'", uni->name);
   }
@@ -200,7 +202,7 @@ shader_attribute_add(Shader* s, const char* name, GLint size, GLenum type)
 {
   Attribute att;
   att.name = name;
-  att.location = 0;
+  att.location = -1;
   att.size = size;
   att.type = type;
   eina_inarray_push(s->attributes, &att);
@@ -211,7 +213,7 @@ shader_uniform_add(Shader* s, const char* name, bool visible)
 {
   Uniform uni;
   uni.name = name;
-  uni.location = 0;
+  uni.location = -1;
   uni.type = UNIFORM_UNKNOWN;
   uni.visible = visible;
   eina_inarray_push(s->uniforms, &uni);
@@ -372,8 +374,11 @@ shader_mesh_nocomp_draw(Shader* s, ShaderInstance* si, struct _Mesh* m)
       glUniform3f(uni_loc, uv->value.vec3.x, uv->value.vec3.y, uv->value.vec3.z);
       else if (uni->type == UNIFORM_VEC4)
       glUniform4f(uni_loc, uv->value.vec4.x, uv->value.vec4.y, uv->value.vec4.z, uv->value.vec4.w);
+      else if (uni->type == UNIFORM_MAT4){
+          glUniformMatrix4fv(uni_loc, 1, GL_FALSE, uv->value.mat4);
+       }
       else
-      EINA_LOG_DOM_WARN(log_shader_dom, "Shader %s uniform not yet %d", s->name, uni->type);
+      EINA_LOG_DOM_ERR(log_shader_dom, "Shader %s uniform not yet %d", s->name, uni->type);
     }
 
   }
@@ -453,6 +458,17 @@ shader_uniform_get(Shader* s, const char* name)
     return uni;
   }
   return NULL;
+}
+
+bool
+shader_uniform_has(Shader* s, const char* name)
+{
+  Uniform* uni;
+  EINA_INARRAY_FOREACH(s->uniforms, uni) {
+    if (!strcmp(uni->name, name)) 
+    return true;
+  }
+  return false;
 }
 
 
@@ -540,8 +556,12 @@ shader_instance_create(Shader* s)
 void
 shader_instance_uniform_data_set(ShaderInstance* si, const char* name, void* data)
 {
-  void* old = eina_hash_set(si->uniforms, name, data);
-  //if (!old) printf("--warning, %s: there was no such key '%s' \n", __FUNCTION__, name);
+  if (si->uniforms) {
+    void* old = eina_hash_set(si->uniforms, name, data);
+    //if (!old) printf("--warning, %s: there was no such key '%s' \n", __FUNCTION__, name);
+  }
+  else{
+   }
 }
 
 void*
@@ -553,8 +573,11 @@ shader_instance_uniform_data_get(ShaderInstance* si, const char* name)
 void
 shader_instance_texture_data_set(ShaderInstance* si, const char* name, void* data)
 {
-  void* old = eina_hash_set(si->textures, name, data);
-  //if (!old) printf("--warning, %s: there was no such key '%s' \n", __FUNCTION__, name);
+  if (si->textures)
+   {
+    void* old = eina_hash_set(si->textures, name, data);
+    //if (!old) printf("--warning, %s: there was no such key '%s' \n", __FUNCTION__, name);
+  }
 }
 
 void*

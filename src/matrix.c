@@ -463,7 +463,6 @@ mat4_pos_ori(Vec3 position, Quat orientation, Matrix4 out)
 {
   Matrix4 mt, mr;
   mat4_set_translation(mt, position);
-  mat4_print(mt);
   mat4_set_rotation_quat(mr, orientation);
   mat4_multiply(mt, mr, out);
   //mat4_multiply(mr, mt, out);

@@ -301,7 +301,7 @@ quat_between_vec3(Vec3 from, Vec3 to)
   double cos_angle = vec3_dot(from,to);
   Vec3 rot_axis;
 
-  printf("cos angle : %f\n", cos_angle);
+  //printf("cos angle : %f\n", cos_angle);
 
    if (cos_angle < -1 + 0.001f){
      rot_axis = vec3_cross(vec3(0.0f, 0.0f, 1.0f), from);
@@ -310,7 +310,7 @@ quat_between_vec3(Vec3 from, Vec3 to)
      rot_axis = vec3_cross(vec3(1.0f, 0.0f, 0.0f), from);
 
      rot_axis = vec3_normalized(rot_axis);
-    printf("quat bet vec PI rot : %f ;; %f, %f, %f\n", rot_axis.x, rot_axis.y, rot_axis.z);
+    //printf("quat bet vec PI rot : %f ;; %f, %f, %f\n", rot_axis.x, rot_axis.y, rot_axis.z);
      return quat_angle_axis(M_PI, rot_axis);
     }
 
@@ -319,7 +319,7 @@ quat_between_vec3(Vec3 from, Vec3 to)
    double s = sqrt((1.0f + cos_angle) * 2.0f);
    double invs = 1.0f / s;
 
-  printf("quat bet vec s, ROTAXIS : %f ;; %f, %f, %f\n", s, rot_axis.x, rot_axis.y, rot_axis.z);
+  //printf("quat bet vec s, ROTAXIS : %f ;; %f, %f, %f\n", s, rot_axis.x, rot_axis.y, rot_axis.z);
 
    return quat(
         rot_axis.x * invs,
@@ -353,9 +353,9 @@ quat_lookat(Vec3 from, Vec3 at, Vec3 up)
   Quat rot1 = quat_between_vec3(vec3(0,0,-1), forward);
 
   //printf("rot1 quat : %f, %f, %f, %f\n", rot1.x,rot1.y,rot1.z,rot1.w);
-  //Vec3 a = quat_to_euler_deg(rot1);
+  Vec3 a = quat_to_euler_deg(rot1);
   //printf("rot1 angle : %f, %f, %f\n", a.x,a.y,a.z);
-  return rot1;
+  //return rot1;
   
   Vec3 right = vec3_cross(forward, up_wanted);
   up_wanted = vec3_cross(right, forward);
