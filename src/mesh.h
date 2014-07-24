@@ -94,6 +94,7 @@ Mesh* mesh_new();
 void mesh_file_set(Mesh* m, const char* filename);
 void mesh_init(Mesh* mesh);
 void mesh_resend(Mesh* mesh);
+void mesh_clear(Mesh* m);
 void mesh_destroy(Mesh* m);
 void buffer_resend(Buffer* b);
 

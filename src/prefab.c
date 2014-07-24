@@ -97,7 +97,7 @@ prefab_read(const char* filename)
 
   Prefab* p = eet_data_read(ef, property_set_prefab()->descriptor, PREFAB_FILE_ENTRY);
   eet_close(ef);
- 
+
   return p;  
 }
 

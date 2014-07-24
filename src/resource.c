@@ -724,8 +724,44 @@ resource_texture_update(ResourceManager* rm, const char* filename)
   tex->filename = filename;
   texture_png_read(tex);
   eina_hash_add(rm->textures, filename, tex);
+}
 
-  
+
+void
+resource_mesh_update(ResourceManager* rm, const char* filename)
+{
+printf("TOOOO cheeeeeeeeckkk\n");
+  if (!eina_str_has_extension(filename, ".mesh"))
+  return;
+
+  Eina_Iterator* it;
+  Eina_Hash* hash = resource_meshes_get(rm);
+
+  if (!hash) return;
+
+  it = eina_hash_iterator_tuple_new(hash);
+  void *data;
+
+  bool find = false;
+
+  while (eina_iterator_next(it, &data)) {
+    Eina_Hash_Tuple *tuple = data;
+    const char* name = tuple->key;
+    Mesh* mesh = tuple->data;
+    if (!strcmp(filename, name)) {
+      mesh_clean(mesh);
+      mesh_file_set(mesh, filename);
+      find = true;
+    }
+  }
+
+  eina_iterator_free(it);
+
+  if (find) return;
+
+  Mesh* mesh = mesh_new();
+  mesh_file_set(mesh, filename);
+  eina_hash_add(rm->meshes, filename, mesh);
 }
 
 

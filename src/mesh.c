@@ -264,7 +264,7 @@ mesh_find_vertexgroup(Mesh* mesh, char* name)
 }
 
 void
-mesh_destroy(Mesh* m)
+mesh_clean(Mesh* m)
 {
   //TODO clean non opengl data
   if (!m->is_init) return;
@@ -276,6 +276,15 @@ mesh_destroy(Mesh* m)
     glDeleteBuffers(1,&b->id);
   }
 }
+
+
+void
+mesh_destroy(Mesh* m)
+{
+  mesh_clean(m);
+  free(m);
+}
+
 
 void
 mesh_file_set(Mesh* m, const char* filename)
