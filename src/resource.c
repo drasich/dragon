@@ -708,10 +708,12 @@ resource_texture_update(ResourceManager* rm, const char* filename)
   while (eina_iterator_next(it, &data)) {
     Eina_Hash_Tuple *tuple = data;
     const char* name = tuple->key;
+    //TODO set tmp texture, destroy tex, read and recreate tex
+    //TODO or not temp texture just deactivate tex
     Texture* tex = tuple->data;
     if (!strcmp(filename, name)) {
-      texture_png_read(tex);
       tex->is_init = false;
+      texture_png_read(tex);
       find = true;
     }
   }

@@ -327,27 +327,41 @@ shader_mesh_nocomp_draw(Shader* s, ShaderInstance* si, struct _Mesh* m)
       //GLint uni_tex = shader_uniform_location_get(s, uniname);
       GLint uni_tex = uni->location;
       GLint tex_id = -1;
-      TextureHandle* th = shader_instance_texture_data_get(si, uniname);
+      TextureInfo* ti = shader_instance_texture_data_get(si, uniname);
 
-      if (!th) {
+      if (!ti) {
         EINA_LOG_DOM_ERR(log_shader_dom, "Couldn't find the texture handle with this name: '%s'.", uniname);
         shader_instance_print(si);
       }
-      else if (!th->texture) {
-        EINA_LOG_DOM_ERR(log_shader_dom, "Texture is not loaded, or not assigned?: '%s'.", uniname);
-        th->texture = resource_texture_get(s_rm, th->name);
+      else if (!ti->is_fbo) {
+        TextureHandle* th = ti->value.th;
         if (!th->texture) {
-          //TODO default texture
-          th->name = "image/test.png";
+          EINA_LOG_DOM_ERR(log_shader_dom, "Texture is not loaded, or not assigned?: '%s'.", uniname);
           th->texture = resource_texture_get(s_rm, th->name);
+          if (!th->texture ) {
+            //TODO default texture
+            th->name = "image/test.png";
+            th->texture = resource_texture_get(s_rm, th->name);
+          }
         }
 
+        if (th && th->texture) {
+          Texture* t = th->texture;
+          texture_init(t);
+          Id* id = texture_id_get(t);
+          if (id->valid) {
+            tex_id = id->id;
+          }
+          free(id);
+        }
       }
-
-      if (th && th->texture) {
-        Texture* t = th->texture;
-        texture_init(t);
-        tex_id = texture_id_get(t);
+      else {
+        if (ti->fbo_depth) {
+          tex_id = ti->value.fbo->texture_depth_stencil_id;
+        }
+        else {
+          tex_id = ti->value.fbo->texture_color;
+        }
       }
 
       if (uni_tex >= 0 && tex_id >= 0) {
@@ -518,13 +532,15 @@ _shader_instance_uniform_default_value_add(ShaderInstance* si, Uniform* uni)
 
   if (uni->type == UNIFORM_TEXTURE ) {
     //TODO another default texture
-    TextureHandle* t = resource_texture_handle_new(s_rm, "image/ceil.png");
+    TextureHandle* th = resource_texture_handle_new(s_rm, "image/ceil.png");
+    TextureInfo* ti = calloc(1, sizeof *ti);
+    ti->value.th = th;
 
     if (!si->textures) {
       si->textures = eina_hash_string_superfast_new(NULL);
     }
 
-    eina_hash_add(si->textures, uni->name, t);
+    eina_hash_add(si->textures, uni->name, ti);
   }
   else {
     UniformValue* uv = calloc(1, sizeof *uv);
@@ -571,7 +587,7 @@ shader_instance_uniform_data_get(ShaderInstance* si, const char* name)
 }
 
 void
-shader_instance_texture_data_set(ShaderInstance* si, const char* name, const TextureHandle* data)
+shader_instance_texture_data_set(ShaderInstance* si, const char* name, const TextureInfo* data)
 {
   if (si->textures)
    {
@@ -595,7 +611,8 @@ property_set_shader_instance()
   Property* ps_tex = property_set_resource_handle(RESOURCE_TEXTURE);
   ps_tex->hide_name = true;
 
-  PROPERTY_HASH_ADD(ps, ShaderInstance, textures, ps_tex);
+  EINA_LOG_ERR("TODO TODO TODO");
+  //PROPERTY_HASH_ADD(ps, ShaderInstance, textures, ps_tex);
 
   Property* ps_uni = property_set_uniform();
   PROPERTY_HASH_ADD(ps, ShaderInstance, uniforms, ps_uni);
@@ -753,8 +770,10 @@ static Eina_Bool _tex_print(
       void *fdata)
 {
   printf ("                    tex key : %s \n", key);
-  TextureHandle* th = data;
-  printf ("                       tex name : %s \n", th->name);
+  TextureInfo* ti = data;
+  if (!ti->is_fbo) {
+    printf ("                       tex name : %s \n", ti->value.th->name);
+  }
   return EINA_TRUE;
 }
 
@@ -773,9 +792,13 @@ static Eina_Bool _texture_init(
       void *data,
       void *fdata)
 {
-  TextureHandle* th = data;
+  TextureInfo* ti = data;
 
-  th->texture = resource_texture_get(s_rm, th->name);
+  if (!ti->is_fbo) {
+    TextureHandle* th = ti->value.th;
+    th->texture = resource_texture_get(s_rm, th->name);
+  }
+
   return EINA_TRUE;
 }
 
@@ -860,8 +883,15 @@ shader_instance_update(ShaderInstance* si, Shader* s)
   Uniform* uni;
   EINA_INARRAY_FOREACH(s->uniforms, uni) {
     if (uni->type == UNIFORM_TEXTURE ) {
-      TextureHandle* th = eina_hash_find(si->textures, uni->name);
-      if (!th) _shader_instance_uniform_default_value_add(si, uni);
+      TextureInfo* ti = eina_hash_find(si->textures, uni->name);
+      if (!ti) {
+        EINA_LOG_ERR("instance update, add default value : %s, %s ",  s->name, uni->name);
+          _shader_instance_uniform_default_value_add(si, uni);
+        //if (!ti->is_fbo) {
+        //  TextureHandle* th = ti->value.th;
+          //if (!th) _shader_instance_uniform_default_value_add(si, uni);
+        //}
+      }
     }
     else {
       UniformValue* uv = eina_hash_find(si->uniforms, uni->name);
@@ -997,5 +1027,12 @@ void
 shader_reload(Shader* s)
 {
   s->state = CREATED;
+}
+
+TextureInfo*
+texture_info_new()
+{
+  TextureInfo* ti = calloc(1, sizeof *ti);
+  return ti;
 }
 

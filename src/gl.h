@@ -65,6 +65,7 @@ Evas_GL_API* gl;
 #define glCheckFramebufferStatus gl->glCheckFramebufferStatus
 #define glReadPixels gl->glReadPixels
 #define glColorMask gl->glColorMask
+#define glDeleteTextures gl->glDeleteTextures
 
 #else
 

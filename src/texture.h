@@ -25,10 +25,16 @@ struct _Texture
   GLubyte *data;
   const char* filename;
   bool is_init;
+  int state;
 
   GLuint id;
-  bool is_fbo;
-  GLuint* fbo_id;
+};
+
+typedef struct _Id Id;
+struct _Id
+{
+  bool valid;
+  GLuint id;
 };
 
 Texture* texture_new();
@@ -39,8 +45,8 @@ bool texture_png_read(Texture* t);
 void save_png(GLuint* pix, int width, int height);
 
 void texture_init(Texture* t);
+void texture_clean(Texture* t);
 
-void texture_fbo_link(Texture* t, GLuint* id);
-GLuint texture_id_get(Texture* t);
+Id* texture_id_get(Texture* t);
 
 #endif

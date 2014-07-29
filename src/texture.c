@@ -153,6 +153,8 @@ texture_read_png_file(const char *path)
 
   fclose(f);
 
+  tex->state = 1;
+
   return tex;
 }
 
@@ -278,6 +280,7 @@ void
 texture_init(Texture* tex)
 {
   if (tex->is_init) return;
+  if (tex->state != 1) return;
 
   /*
   if (texture_png_read(tex))
@@ -307,6 +310,7 @@ texture_init(Texture* tex)
 
   free(tex->data);
   tex->is_init = true;
+  tex->state = 2;
 }
 
 bool
@@ -459,21 +463,34 @@ texture_png_read(Texture* tex)
 
   fclose(f);
 
+  tex->state = 1;
+
   return true;
 
 }
 
-void
-texture_fbo_link(Texture* t, GLuint* id)
+Id* 
+texture_id_get(Texture* t)
 {
-  t->fbo_id = id;
-  t->is_fbo = true;
-  t->is_init = true;
+  Id* id = calloc(1, sizeof *id);
+
+  if (t->state != 2) {
+    id->valid = false;
+  }
+  else {
+    id->valid = true;
+    id->id = t->id;
+  }
+
+  return id;
 }
 
-GLuint texture_id_get(Texture* t)
+void
+texture_clean(Texture* t)
 {
-  if (t->is_fbo) return *t->fbo_id;
-  else return t->id;
+  glDeleteTextures(1, &t->id);
+  t->is_init = false;
+  t->state = -1;
+  t->id = -1;
 }
 
