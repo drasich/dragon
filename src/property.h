@@ -22,6 +22,13 @@ enum _ResourceType{
   RESOURCE_ARMATURE
 };
 
+typedef struct _Enum Enum;
+struct _Enum
+{
+  const char* name;
+  int value;
+};
+
 struct _Property
 {
   const char* name;
@@ -36,6 +43,8 @@ struct _Property
   Hint hint;
   Eet_Data_Descriptor *descriptor;
   bool hide_name;
+
+  Eina_Inarray* enums;
 };
 
 int property_offset_get(const Property* p);
@@ -43,6 +52,8 @@ int property_offset_get(const Property* p);
 Property* property_set_new();
 int property_type_check(int type);
 Property* property_real_parent_get(Property* p);
+
+void property_add_enums(Property* p, int values[], const char* names[], int count);
 
 enum {
   PROPERTY_FILENAME = EET_I_LIMIT, //128
@@ -55,7 +66,8 @@ enum {
   PROPERTY_QUAT,
   PROPERTY_OBJECT,
   TEST1,
-  TEST2
+  TEST2,
+  PROPERTY_ENUM
 };
 
 #define PROPERTY_SET_TYPE(ps, type) \
@@ -134,6 +146,19 @@ enum {
                                   NULL,                              \
                                   NULL)
 #endif
+
+#define PROPERTY_ENUM_ADD(ps, struct_type, member, values, names) \
+ do { \
+   Property *p; \
+   PROPERTY_NEW(p, struct_type, member, PROPERTY_ENUM); \
+   p->name = # member; \
+   ps->list = eina_list_append(ps->list, p); \
+   PROPERTY_SET_TYPE(ps, struct_type); \
+   EET_DATA_DESCRIPTOR_ADD_BASIC(ps->descriptor, struct_type, #member, member, EET_T_INT); \
+   int count = sizeof values / sizeof *values; \
+   printf("__________________ count : %d \n", count); \
+   property_add_enums(p, values, names, count); \
+ } while(0)
 
 
 Property* property_set_vec3();

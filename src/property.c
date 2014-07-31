@@ -11,6 +11,18 @@ Property* property_set_new()
   return ps;
 }
 
+void
+property_add_enums(Property* p, int values[], const char* names[], int count)
+{
+   p->enums = eina_inarray_new(sizeof(Enum), count);
+   int i;
+   for (i = 0; i < count; i++) {
+     Enum e = {names[i], values[i]};
+     eina_inarray_push(p->enums, &e);
+   } 
+}
+
+
 int
 property_offset_get(const Property* p)
 {
@@ -99,4 +111,5 @@ property_set_resource_handle(ResourceType type)
 
   return ps;
 }
+
 
