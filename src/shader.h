@@ -107,8 +107,8 @@ struct _Shader
 typedef struct _ShaderInstance ShaderInstance;
 struct _ShaderInstance
 {
-  Eina_Hash* textures;
-  Eina_Hash* uniforms;
+  Eina_Hash* textures; //type : TextureInfo
+  Eina_Hash* uniforms; //type : UniformValue
 };
 
 //void load_shader(Evas_Object *gl);

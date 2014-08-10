@@ -611,7 +611,7 @@ property_set_shader_instance()
   Property* ps_tex = property_set_resource_handle(RESOURCE_TEXTURE);
   ps_tex->hide_name = true;
 
-  EINA_LOG_ERR("TODO TODO TODO");
+  EINA_LOG_ERR("TODO TODO TODO shaderintance : must make TextureInfo property and also the component view stuff");
   //PROPERTY_HASH_ADD(ps, ShaderInstance, textures, ps_tex);
 
   Property* ps_uni = property_set_uniform();
