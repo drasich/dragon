@@ -48,7 +48,9 @@ mat3_inverse(const Matrix3 in, Matrix3 out)
 
   inv_determinant = 1.0f / determinant;
   int i;
-  for (i = 0; i < 8; i++){
+  //this was 8 before, I think it was an error so I set it to 9
+  printf("mat3 inverse must be checked before use\n)";
+  for (i = 0; i < 9; i++){
     out[i] = inv_determinant * tmp[i];
    }
 }
